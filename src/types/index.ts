@@ -16,3 +16,5 @@ export interface INoteTypes {
   __v: number;
   _id: string;
 }
+
+export type IFilterType = "All" | "Completed" | "Active";

@@ -4,7 +4,7 @@ import { Search, Trash2, Pencil } from "lucide-react";
 import Logo from "../../assets/Logo.png";
 import addIcon from "../../assets/Add button.png";
 import useFetch from "../../hooks/useFetch";
-import { INoteTypes } from "../../types";
+import { IFilterType, INoteTypes } from "../../types";
 import { useDeleteTodo } from "../../hooks/useDeleteTodo";
 import { useToggleComplete } from "../../hooks/useToggleComplete";
 import NoteModal from "../../components/NoteModal";
@@ -13,7 +13,7 @@ import { api } from "../../lib/api";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("ALL");
+  const [filter, setFilter] = useState<IFilterType>("All");
   const [showFilter, setShowFilter] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,6 +24,8 @@ const Home = () => {
   const { data: todos } = useFetch({ key: ["gettodo"], url: "/todos" });
   const { mutate: deleteTodo } = useDeleteTodo();
   const { mutate: toggleComplete } = useToggleComplete();
+
+  console.log(todos);
 
   // CREATE
   const createTodo = useMutation({
@@ -57,15 +59,13 @@ const Home = () => {
     },
   });
 
-  const filteredTodos = todos
-    ?.filter((note: INoteTypes) => {
-      if (filter === "COMPLETED") return note.completed;
-      if (filter === "ACTIVE") return !note.completed;
-      return true;
-    })
-    .filter((note: INoteTypes) =>
-      note.title.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
+  const filteredTodos =
+    todos &&
+    (filter == "Completed"
+      ? todos?.filter((c: INoteTypes) => c.completed)
+      : filter == "Active"
+        ? todos?.filter((c: INoteTypes) => !c.completed)
+        : todos);
 
   return (
     <div className="relative min-h-screen bg-white pt-20 text-gray-900 dark:bg-gray-900 dark:text-white">
@@ -94,12 +94,12 @@ const Home = () => {
             </button>
             {showFilter && (
               <ul className="absolute right-0 z-10 mt-2 w-32 rounded border border-gray-300 bg-white text-sm shadow-md dark:border-gray-700 dark:bg-gray-800">
-                {["ALL", "COMPLETED", "ACTIVE"].map((item) => (
+                {["All", "Completed", "Active"].map((item) => (
                   <li
                     key={item}
                     className="cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                     onClick={() => {
-                      setFilter(item);
+                      setFilter(item as IFilterType);
                       setShowFilter(false);
                     }}
                   >

@@ -25,8 +25,6 @@ const Home = () => {
   const { mutate: deleteTodo } = useDeleteTodo();
   const { mutate: toggleComplete } = useToggleComplete();
 
-  console.log(todos);
-
   // CREATE
   const createTodo = useMutation({
     mutationFn: async (data: { title: string; description: string }) => {
@@ -38,7 +36,7 @@ const Home = () => {
     },
   });
 
-  // UPDATE (PUT bilan va completed qiymatini ham yuboradi)
+  // UPDATE
   const updateTodo = useMutation({
     mutationFn: async (data: {
       id: string;
@@ -59,13 +57,35 @@ const Home = () => {
     },
   });
 
+  //  Highlight qilingan title
+  const highlightText = (text: string, term: string) => {
+    if (!term) return text;
+
+    const regex = new RegExp(`(${term})`, "gi");
+    const parts = text.split(regex);
+
+    return parts.map((part, index) =>
+      part.toLowerCase() === term.toLowerCase() ? (
+        <mark key={index} className="rounded bg-indigo-500 px-1">
+          {part}
+        </mark>
+      ) : (
+        part
+      ),
+    );
+  };
+
+  //  Filter + Search (title)
   const filteredTodos =
     todos &&
-    (filter == "Completed"
-      ? todos?.filter((c: INoteTypes) => c.completed)
-      : filter == "Active"
-        ? todos?.filter((c: INoteTypes) => !c.completed)
-        : todos);
+    (filter === "Completed"
+      ? todos.filter((c: INoteTypes) => c.completed)
+      : filter === "Active"
+        ? todos.filter((c: INoteTypes) => !c.completed)
+        : todos
+    ).filter((note: INoteTypes) =>
+      note.title.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
 
   return (
     <div className="relative min-h-screen bg-white pt-20 text-gray-900 dark:bg-gray-900 dark:text-white">
@@ -134,7 +154,7 @@ const Home = () => {
 
                   <div>
                     <h3 className="text-sm font-semibold text-gray-800 dark:text-white">
-                      {note.title}
+                      {highlightText(note.title, searchTerm)}
                     </h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {note.description}
@@ -173,7 +193,7 @@ const Home = () => {
           setSelectedNote(null);
           setIsModalOpen(true);
         }}
-        className="fixed right-35 bottom-20 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-500 shadow-lg transition hover:bg-indigo-600"
+        className="fixed right-10 bottom-10 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-500 shadow-lg transition hover:bg-indigo-600"
       >
         <img src={addIcon} alt="Add Note" className="h-8 w-8" />
       </button>

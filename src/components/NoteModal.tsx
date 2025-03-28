@@ -15,16 +15,19 @@ interface Props {
 const NoteModal = ({ isOpen, onClose, onSubmit, defaultValues }: Props) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
     if (defaultValues && isOpen) {
       setTitle(defaultValues.title);
       setDescription(defaultValues.description);
+      setCompleted(defaultValues.completed);
     }
 
     if (!defaultValues && isOpen) {
       setTitle("");
       setDescription("");
+      setCompleted(false);
     }
   }, [defaultValues, isOpen]);
 
@@ -38,6 +41,7 @@ const NoteModal = ({ isOpen, onClose, onSubmit, defaultValues }: Props) => {
         </h2>
 
         <div className="space-y-4">
+          {/* Title input */}
           <input
             type="text"
             placeholder="Title"
@@ -45,6 +49,8 @@ const NoteModal = ({ isOpen, onClose, onSubmit, defaultValues }: Props) => {
             onChange={(e) => setTitle(e.target.value)}
             className="w-full rounded border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
           />
+
+          {/* Description input */}
           <textarea
             placeholder="Description"
             value={description}
@@ -52,6 +58,20 @@ const NoteModal = ({ isOpen, onClose, onSubmit, defaultValues }: Props) => {
             className="w-full rounded border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
           />
 
+          {/* ✅ Completed checkbox – faqat edit holatda ko‘rsatiladi */}
+          {defaultValues && (
+            <label className="flex items-center space-x-2 text-sm text-gray-700 dark:text-white">
+              <input
+                type="checkbox"
+                checked={completed}
+                onChange={(e) => setCompleted(e.target.checked)}
+                className="form-checkbox accent-indigo-500"
+              />
+              <span>Completed</span>
+            </label>
+          )}
+
+          {/* Buttons */}
           <div className="mt-4 flex justify-end space-x-2">
             <button
               onClick={onClose}
@@ -65,7 +85,7 @@ const NoteModal = ({ isOpen, onClose, onSubmit, defaultValues }: Props) => {
                 onSubmit({
                   title,
                   description,
-                  completed: defaultValues?.completed,
+                  completed,
                 })
               }
               className="rounded bg-indigo-600 px-4 py-1 text-sm text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"

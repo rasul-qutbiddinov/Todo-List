@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { api } from "../../lib/api";
@@ -34,7 +33,7 @@ const Login = () => {
       queryClient.clear();
       navigate("/todo");
     },
-    onError: (err) => {
+    onError: () => {
       setError("Username yoki parol noto‘g‘ri"); // 👈 xatoni state ga yozamiz
     },
   });

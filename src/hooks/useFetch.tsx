@@ -1,3 +1,4 @@
+// src/hooks/useFetch.ts
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api";
 
@@ -10,8 +11,13 @@ function useFetch({ key, url }: IProps) {
   return useQuery({
     queryKey: key,
     queryFn: async () => {
-      return await api.get(url).then((res) => res?.data);
+      const res = await api.get(url);
+      return res.data;
     },
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    gcTime: 0, // ✅ V5 da cacheTime o‘rniga gcTime ishlatiladi
+    staleTime: 0,
   });
 }
 

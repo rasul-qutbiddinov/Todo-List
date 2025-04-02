@@ -44,7 +44,7 @@ const SignIn = () => {
         onSubmit={onSubmit}
         className="w-full max-w-[50%] rounded-2xl border border-slate-200 p-10 shadow"
       >
-        <h2 className="mb-6 text-center text-3xl font-bold">Sign In</h2>
+        <h2 className="mb-6 text-center text-3xl font-bold">Sign up</h2>
 
         <div className="mb-5">
           <label htmlFor="username" className="block text-sm font-medium">

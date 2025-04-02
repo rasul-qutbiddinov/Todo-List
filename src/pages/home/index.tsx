@@ -10,22 +10,23 @@ import { useToggleComplete } from "../../hooks/useToggleComplete";
 import NoteModal from "../../components/NoteModal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../lib/api";
+import TodoLoader from "../../Loaders/TodoLoader";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<IFilterType>("All");
   const [showFilter, setShowFilter] = useState(false);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<INoteTypes | null>(null);
 
   const queryClient = useQueryClient();
-
-  const { data: todos } = useFetch({ key: ["gettodo"], url: "/todos" });
+  const { data: todos, isLoading } = useFetch({
+    key: ["gettodo"],
+    url: "/todos",
+  });
   const { mutate: deleteTodo } = useDeleteTodo();
   const { mutate: toggleComplete } = useToggleComplete();
 
-  // CREATE
   const createTodo = useMutation({
     mutationFn: async (data: { title: string; description: string }) => {
       await api.post("/todos", data);
@@ -36,7 +37,6 @@ const Home = () => {
     },
   });
 
-  // UPDATE
   const updateTodo = useMutation({
     mutationFn: async (data: {
       id: string;
@@ -57,13 +57,10 @@ const Home = () => {
     },
   });
 
-  //  Highlight qilingan title
   const highlightText = (text: string, term: string) => {
     if (!term) return text;
-
     const regex = new RegExp(`(${term})`, "gi");
     const parts = text.split(regex);
-
     return parts.map((part, index) =>
       part.toLowerCase() === term.toLowerCase() ? (
         <mark key={index} className="rounded bg-indigo-500 px-1">
@@ -75,7 +72,6 @@ const Home = () => {
     );
   };
 
-  //  Filter + Search (title)
   const filteredTodos =
     todos &&
     (filter === "Completed"
@@ -93,27 +89,27 @@ const Home = () => {
 
       <div className="mx-auto max-w-2xl px-4 py-8">
         {/* Search + Filter */}
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex w-full max-w-md items-center rounded border border-indigo-300 px-3 py-1">
+        <div className="mb-6 flex flex-col gap-y-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex w-full items-center rounded border border-indigo-300 px-2 py-1 sm:max-w-md">
             <Search className="h-4 w-4 text-indigo-400" />
             <input
               type="text"
               placeholder="Search note..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-transparent px-2 text-sm placeholder-indigo-300 outline-none"
+              className="w-full bg-transparent px-2 text-xs placeholder-indigo-300 outline-none"
             />
           </div>
 
-          <div className="relative ml-4">
+          <div className="relative w-full sm:w-auto">
             <button
               onClick={() => setShowFilter(!showFilter)}
-              className="w-32 rounded bg-indigo-500 px-3 py-1 text-sm text-white"
+              className="w-full rounded bg-indigo-500 px-3 py-1 text-sm text-white sm:w-32"
             >
               {filter}
             </button>
             {showFilter && (
-              <ul className="absolute right-0 z-10 mt-2 w-32 rounded border border-gray-300 bg-white text-sm shadow-md dark:border-gray-700 dark:bg-gray-800">
+              <ul className="absolute right-0 z-10 mt-2 w-full rounded border border-gray-300 bg-white text-sm shadow-md sm:w-32 dark:border-gray-700 dark:bg-gray-800">
                 {["All", "Completed", "Active"].map((item) => (
                   <li
                     key={item}
@@ -132,49 +128,53 @@ const Home = () => {
         </div>
 
         {/* Todos list */}
-        {filteredTodos && filteredTodos.length > 0 ? (
+        {isLoading ? (
+          <TodoLoader count={4} />
+        ) : filteredTodos && filteredTodos.length > 0 ? (
           <ul className="space-y-4">
             {filteredTodos.map((note: INoteTypes) => (
               <li
                 key={note._id}
-                className="flex items-center justify-between border-b border-gray-200 pb-2 dark:border-gray-700"
+                className="flex flex-col border-b border-gray-200 pb-2 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700"
               >
-                <div className="flex items-start space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={note.completed}
-                    onChange={() =>
-                      toggleComplete({
-                        id: note._id,
-                        completed: !note.completed,
-                      })
-                    }
-                    className="form-checkbox mt-1 h-4 w-4 accent-indigo-500"
-                  />
+                <div className="flex w-full items-start justify-between space-x-2">
+                  <div className="flex items-start space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={note.completed}
+                      onChange={() =>
+                        toggleComplete({
+                          id: note._id,
+                          completed: !note.completed,
+                        })
+                      }
+                      className="form-checkbox mt-1 h-4 w-4 accent-indigo-500"
+                    />
 
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-800 dark:text-white">
-                      {highlightText(note.title, searchTerm)}
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {note.description}
-                    </p>
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-800 dark:text-white">
+                        {highlightText(note.title, searchTerm)}
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {note.description}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center space-x-2 text-gray-400">
-                  <button
-                    title="Edit"
-                    onClick={() => {
-                      setSelectedNote(note);
-                      setIsModalOpen(true);
-                    }}
-                  >
-                    <Pencil className="h-4 w-4 hover:text-indigo-500" />
-                  </button>
-                  <button title="Delete" onClick={() => deleteTodo(note._id)}>
-                    <Trash2 className="h-4 w-4 hover:text-red-500" />
-                  </button>
+                  <div className="flex items-center space-x-2 text-gray-400">
+                    <button
+                      title="Edit"
+                      onClick={() => {
+                        setSelectedNote(note);
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      <Pencil className="h-5 w-5 hover:text-indigo-500" />
+                    </button>
+                    <button title="Delete" onClick={() => deleteTodo(note._id)}>
+                      <Trash2 className="h-5 w-5 hover:text-red-500" />
+                    </button>
+                  </div>
                 </div>
               </li>
             ))}
@@ -193,9 +193,9 @@ const Home = () => {
           setSelectedNote(null);
           setIsModalOpen(true);
         }}
-        className="fixed right-10 bottom-10 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-500 shadow-lg transition hover:bg-indigo-600"
+        className="fixed right-6 bottom-6 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500 shadow-lg transition hover:bg-indigo-600 sm:h-14 sm:w-14"
       >
-        <img src={addIcon} alt="Add Note" className="h-8 w-8" />
+        <img src={addIcon} alt="Add Note" className="h-6 w-6 sm:h-8 sm:w-8" />
       </button>
 
       {/* Modal */}

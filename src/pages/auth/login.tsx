@@ -3,11 +3,13 @@ import React, { useEffect, useState } from "react";
 import { api } from "../../lib/api";
 import { useNavigate } from "react-router-dom";
 import { IAuthTypes } from "../../types";
+import { useTranslation } from "react-i18next";
 
 const Login = () => {
+  const { t } = useTranslation();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>(""); // 👈 xatolik uchun state
+  const [error, setError] = useState<string>("");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -34,33 +36,24 @@ const Login = () => {
       navigate("/todo");
     },
     onError: () => {
-      setError("Username yoki parol noto‘g‘ri"); // 👈 xatoni state ga yozamiz
+      setError(t("loginError"));
     },
   });
 
-  const handleUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(e.target.value);
-  };
-
-  const handlePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // 👈 sahifa refreshini oldini olish
-    setError(""); // 👈 har safar submit qilganda eski xatoni tozalash
+    e.preventDefault();
+    setError("");
     login.mutate({ username, password });
   };
 
   return (
     <div className="flex h-screen w-full items-center justify-center">
       <form
-        className="w-full max-w-[50%] rounded-2xl border border-slate-200 p-10 shadow"
+        className="w-full max-w-[80%] rounded-2xl border border-slate-200 p-10 shadow"
         onSubmit={onSubmit}
       >
-        <h2 className="mb-6 text-center text-3xl font-bold">Login</h2>
+        <h2 className="mb-6 text-center text-3xl font-bold">{t("login")}</h2>
 
-        {/* Xatolik xabari */}
         {error && (
           <div className="mb-4 rounded bg-red-100 p-2 text-center text-sm text-red-600">
             {error}
@@ -69,28 +62,28 @@ const Login = () => {
 
         <div className="mb-5">
           <label htmlFor="username" className="block text-sm font-medium">
-            Username
+            {t("username")}
           </label>
           <input
             type="text"
             id="username"
             required
             value={username}
-            onChange={handleUsername}
+            onChange={(e) => setUsername(e.target.value)}
             className="mt-1 w-full rounded-lg border border-gray-300 p-2 text-sm dark:bg-gray-700 dark:text-white"
           />
         </div>
 
         <div className="mb-5">
           <label htmlFor="password" className="block text-sm font-medium">
-            Password
+            {t("password")}
           </label>
           <input
             type="password"
             id="password"
             required
             value={password}
-            onChange={handlePassword}
+            onChange={(e) => setPassword(e.target.value)}
             className="mt-1 w-full rounded-lg border border-gray-300 p-2 text-sm dark:bg-gray-700 dark:text-white"
           />
         </div>
@@ -99,13 +92,13 @@ const Login = () => {
           type="submit"
           className="w-full rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800"
         >
-          Submit
+          {t("submit")}
         </button>
 
         <p className="mt-4 text-center text-sm">
-          Don't have an account?{" "}
+          {t("dontHaveAccount")}{" "}
           <a href="/signin" className="text-indigo-600 hover:underline">
-            Sign up
+            {t("signUp")}
           </a>
         </p>
       </form>

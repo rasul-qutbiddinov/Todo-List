@@ -1,7 +1,7 @@
-// src/components/NoteModal.tsx
 import { useEffect, useState } from "react";
 import { INoteTypes } from "../types";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   isOpen: boolean;
@@ -15,6 +15,7 @@ interface Props {
 }
 
 const NoteModal = ({ isOpen, onClose, onSubmit, defaultValues }: Props) => {
+  const { t } = useTranslation(); // ✅ Tarjima hook
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [completed, setCompleted] = useState(false);
@@ -48,20 +49,20 @@ const NoteModal = ({ isOpen, onClose, onSubmit, defaultValues }: Props) => {
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
           >
             <h2 className="mb-4 text-lg font-semibold dark:text-white">
-              {defaultValues ? "Edit Note" : "Add Note"}
+              {defaultValues ? t("editNote") : t("addNote")}
             </h2>
 
             <div className="space-y-4">
               <input
                 type="text"
-                placeholder="Title"
+                placeholder={t("titlePlaceholder")}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full rounded border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
               />
 
               <textarea
-                placeholder="Description"
+                placeholder={t("descriptionPlaceholder")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full rounded border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
@@ -75,7 +76,7 @@ const NoteModal = ({ isOpen, onClose, onSubmit, defaultValues }: Props) => {
                     onChange={(e) => setCompleted(e.target.checked)}
                     className="form-checkbox accent-indigo-500"
                   />
-                  <span>Completed</span>
+                  <span>{t("completed")}</span>
                 </label>
               )}
 
@@ -84,7 +85,7 @@ const NoteModal = ({ isOpen, onClose, onSubmit, defaultValues }: Props) => {
                   onClick={onClose}
                   className="rounded bg-gray-300 px-4 py-1 text-sm dark:bg-gray-600 dark:text-white"
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
                 <button
                   disabled={!title || !description}
@@ -97,7 +98,7 @@ const NoteModal = ({ isOpen, onClose, onSubmit, defaultValues }: Props) => {
                   }
                   className="rounded bg-indigo-600 px-4 py-1 text-sm text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Apply
+                  {t("apply")}
                 </button>
               </div>
             </div>

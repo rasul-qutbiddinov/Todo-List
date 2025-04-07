@@ -11,8 +11,10 @@ import NoteModal from "../../components/NoteModal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../lib/api";
 import TodoLoader from "../../Loaders/TodoLoader";
+import { useTranslation } from "react-i18next";
 
 const Home = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<IFilterType>("All");
   const [showFilter, setShowFilter] = useState(false);
@@ -83,6 +85,12 @@ const Home = () => {
       note.title.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
+  const filterLabels: Record<IFilterType, string> = {
+    All: t("filterAll"),
+    Completed: t("filterCompleted"),
+    Active: t("filterActive"),
+  };
+
   return (
     <div className="relative min-h-screen bg-white pt-20 text-gray-900 dark:bg-gray-900 dark:text-white">
       <Navbar />
@@ -94,7 +102,7 @@ const Home = () => {
             <Search className="h-4 w-4 text-indigo-400" />
             <input
               type="text"
-              placeholder="Search note..."
+              placeholder={t("searchNote")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-transparent px-2 text-xs placeholder-indigo-300 outline-none"
@@ -106,20 +114,20 @@ const Home = () => {
               onClick={() => setShowFilter(!showFilter)}
               className="w-full rounded bg-indigo-500 px-3 py-1 text-sm text-white sm:w-32"
             >
-              {filter}
+              {filterLabels[filter]}
             </button>
             {showFilter && (
               <ul className="absolute right-0 z-10 mt-2 w-full rounded border border-gray-300 bg-white text-sm shadow-md sm:w-32 dark:border-gray-700 dark:bg-gray-800">
-                {["All", "Completed", "Active"].map((item) => (
+                {(Object.keys(filterLabels) as IFilterType[]).map((item) => (
                   <li
                     key={item}
                     className="cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                     onClick={() => {
-                      setFilter(item as IFilterType);
+                      setFilter(item);
                       setShowFilter(false);
                     }}
                   >
-                    {item}
+                    {filterLabels[item]}
                   </li>
                 ))}
               </ul>
@@ -182,7 +190,9 @@ const Home = () => {
         ) : (
           <div className="flex flex-col items-center justify-center space-y-2 py-10">
             <img src={Logo} alt="logo" className="h-auto w-48 opacity-90" />
-            <p className="text-sm text-gray-500 dark:text-gray-400">Empty...</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {t("emptyList")}
+            </p>
           </div>
         )}
       </div>

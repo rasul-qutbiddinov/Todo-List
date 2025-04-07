@@ -42,7 +42,7 @@ const SignIn = () => {
     <div className="flex h-screen w-full items-center justify-center">
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-[50%] rounded-2xl border border-slate-200 p-10 shadow"
+        className="w-full max-w-[80%] rounded-2xl border border-slate-200 p-10 shadow"
       >
         <h2 className="mb-6 text-center text-3xl font-bold">Sign up</h2>
 
